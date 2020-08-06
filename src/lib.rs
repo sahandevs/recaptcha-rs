@@ -6,16 +6,22 @@ extern crate failure;
 pub mod error;
 mod response;
 
-use reqwest::{Client, Url};
+use reqwest::{ClientBuilder, Url};
 use std::collections::HashSet;
 use std::net::IpAddr;
+use std::time::Duration;
 
 pub use crate::error::Error;
 
 use crate::response::RecaptchaResponse;
 
 /// Verify a recaptcha user response
-pub fn verify(key: &str, response: &str, user_ip: Option<&IpAddr>) -> Result<(), Error> {
+pub fn verify(
+    key: &str,
+    response: &str,
+    user_ip: Option<&IpAddr>,
+    timeout: Duration,
+) -> Result<(), Error> {
     let user_ip = user_ip.map(ToString::to_string);
 
     let mut url = Url::parse("https://www.google.com/recaptcha/api/siteverify").unwrap();
@@ -27,7 +33,10 @@ pub fn verify(key: &str, response: &str, user_ip: Option<&IpAddr>) -> Result<(),
         url.query_pairs_mut().append_pair("remoteip", &user_ip);
     }
 
-    let client = Client::new();
+    let client = ClientBuilder::new()
+        .connect_timeout(timeout)
+        .timeout(timeout)
+        .build()?;
 
     let mut response = client.get(url).send()?;
     let recaptcha_response = response.json::<RecaptchaResponse>()?;
@@ -43,7 +52,7 @@ pub fn verify(key: &str, response: &str, user_ip: Option<&IpAddr>) -> Result<(),
 fn test_invalid_secret_missing_response() {
     use error::Code::*;
     use error::Error::*;
-    let resp = verify("", "", None);
+    let resp = verify("", "", None, Duration::from_secs(10));
 
     match resp {
         Ok(()) => panic!("unexpected response: Ok(())"),
