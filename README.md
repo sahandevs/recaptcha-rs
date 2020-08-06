@@ -1,27 +1,12 @@
-# recaptcha-rs [![Build Status](https://travis-ci.org/panicbit/recaptcha-rs.svg)](https://travis-ci.org/panicbit/recaptcha-rs)
-Recaptcha-rs is a very simple library to verify recaptcha responses.
+# recaptcha-rs
 
-## Installation
-To use recaptcha-rs in your project you can add the following to your `Cargo.toml`:
+A library to verify recaptcha responses
+
+## How to use
+
 ```toml
-[dependencies.recaptcha]
-version = "0.2.0"
-```
+# Cargo.toml
 
-## Usage
-Verifying recaptcha responses is very easy:
-```rust
-extern crate recaptcha;
-
-fn main() {
-    let remote_ip = "123.123.123.123".parse().ok();
-    let res = recaptcha::verify("your_private_key", "user_response", remote_ip);
-
-    if res.is_ok() {
-        println!("Success");
-    } else {
-        println!("Failure");
-    }
-}
-
+[dependencies]
+recaptcha = { git = "https://github.com/arvancs/recaptcha-rs.git", tag = "0.4.0" }
 ```
