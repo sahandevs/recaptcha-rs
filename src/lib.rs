@@ -6,7 +6,8 @@ extern crate failure;
 pub mod error;
 mod response;
 
-use reqwest::{ClientBuilder, Url};
+use reqwest::Url;
+use reqwest::blocking::{ClientBuilder};
 use std::collections::HashSet;
 use std::net::IpAddr;
 use std::time::Duration;
@@ -38,7 +39,7 @@ pub fn verify(
         .timeout(timeout)
         .build()?;
 
-    let mut response = client.get(url).send()?;
+    let response = client.get(url).send()?;
     let recaptcha_response = response.json::<RecaptchaResponse>()?;
 
     match (recaptcha_response.success, recaptcha_response.error_codes) {
